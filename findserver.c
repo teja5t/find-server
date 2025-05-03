@@ -77,10 +77,11 @@ int main() {
     //   Close the socket.
     for (int i = 1024; i < 65535; i++) {
         serv_addr.sin_port = i;
+        int len;
         int s = create_socket(&tv);
         if (connect(s, (struct sockaddr *)&serv_addr, addrlen) != -1 &&
-            recv(s, buf, BUFLEN - 1, 0) != -1) {
-                buf[BUFLEN - 1] = '\0';
+            (len = recv(s, buf, BUFLEN - 1, 0)) != -1) {
+                buf[len] = '\0';
                 printf("Found server on port %d.\n"
                         "Received message from server: %s\n", i, buf);
                 goto EXIT;
