@@ -19,7 +19,7 @@ int create_socket(struct timeval *tv) {
     // message: "Error: Failed to create socket. %s.\n", where %s is strerror of
     // errno and return -1.
     client_socket = socket(AF_INET, SOCK_STREAM, 0);
-    if (client_socket = -1) {
+    if (client_socket == -1) {
         fprintf(stderr, "Error: Failed to create socket. %s.\n", strerror(errno));
         return -1;
     }
@@ -31,14 +31,10 @@ int create_socket(struct timeval *tv) {
     // and return -1.
     // Hint: Look up SO_RCVTIMEO.
 
-    if (setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) == -1) {
+    if (setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, tv, sizeof(*tv)) == -1) {
         fprintf(stderr, "Error: Cannot set socket options. %s.\n", strerror(errno));
         return -1;
     }
-
-    
-
-
 
     return client_socket;
 }
@@ -63,7 +59,7 @@ int main() {
 
     struct timeval tv;
     // TODO: Set the tv to be 0 seconds, 250 microseconds.
-    tv.tv_sec = .250;
+    tv.tv_usec = 250;
 
     // TODO:
     // Loop over ports 1024 up to and including 65535.
@@ -82,12 +78,16 @@ int main() {
     for (int i = 1024; i < 65535; i++) {
         serv_addr.sin_port = i;
         int s = create_socket(&tv);
-        if (connect(s, &serv_addr, addrlen) != -1 &&
+        if (connect(s, (struct sockaddr *)&serv_addr, addrlen) != -1 &&
             recv(s, buf, BUFLEN - 1, 0) != -1) {
                 buf[BUFLEN - 1] = '\0';
                 printf("Found server on port %d.\n"
                         "Received message from server: %s\n", i, buf);
+                goto EXIT;
         }
+
+        close(s);
+
 
     }
 
