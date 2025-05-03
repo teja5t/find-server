@@ -84,7 +84,6 @@ int main() {
                 buf[len] = '\0';
                 printf("Found server on port %d.\n"
                         "Received message from server: %s\n", i, buf);
-                goto EXIT;
         }
 
         close(s);
